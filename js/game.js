@@ -6,6 +6,7 @@ var step = 1;
 var bzm = null;
 var buzz = null;
 var bus = null;
+var crowd = null;
 
 function get_json(url) {
     var req = new XMLHttpRequest();
@@ -18,6 +19,7 @@ var solved_game = get_json('/solve');
 var path = solved_game['path'];
 var current = solved_game['start'];
 var obstacles = solved_game['obstacles'];
+var world = solved_game['world'];
 var goal = solved_game['end'];
 
 function line_grid(x1, y1, x2, y2) {
@@ -44,7 +46,16 @@ function draw_state(step) {
     //draw world obstacles
     for (var i = 0; i < obstacles.length; i++) {
         stroke(0);
-        rect(obstacles[i][1] * WIDTH, obstacles[i][0] * WIDTH, WIDTH, WIDTH);
+        var r = obstacles[i][0];
+        var c = obstacles[i][1];
+        if (world[r][c] == 0) {
+            image_grid(bus, c, r);
+        } else if (world[r][c] == 1) {
+            image_grid(crowd, c, r);
+        } else if (world[r][c] > 1) {
+            rect(obstacles[i][1] * WIDTH, obstacles[i][0] * WIDTH, WIDTH, WIDTH);
+        }
+
     }
 
     //move bzm
@@ -75,7 +86,8 @@ function setup() {
     frameRate(30);
     bzm = loadImage('js/buzzmobile.png');
     buzz = loadImage('js/buzz.png');
-    bus = loadImage('js/bus.png');
+    bus = loadImage('js/bus.jpeg');
+    crowd = loadImage('js/crowd.jpeg');
     strokeWeight(10);
 }
 

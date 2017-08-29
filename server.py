@@ -29,7 +29,7 @@ class Handler(BaseHTTPRequestHandler):
             with open('js/game.js', 'rb') as f:
                 js = f.read()
             self.wfile.write(js)
-        elif path[1] == 'js' and path[2].endswith('.png'):
+        elif path[1] == 'js' and (path[2].endswith('.png') or path[2].endswith('.jpeg')):
             self._serve_headers(content = 'image/png')
             with open('js/' + path[2], 'rb') as f:
                 png = f.read()
