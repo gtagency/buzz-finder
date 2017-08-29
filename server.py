@@ -1,10 +1,9 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from collections import namedtuple
 import json
-from bot import Bot, PLAYER1, PLAYER2, Game
+from bot import Game
 
-Config = namedtuple('Config', ['game'])
-config = Config(Game(Bot(PLAYER1), Bot(PLAYER2)))
+game = Game()
 
 class Handler(BaseHTTPRequestHandler):
     def _serve_headers(self, status_code = 200, content = 'text/html'):
@@ -17,24 +16,29 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(bytes(json.dumps(data), 'UTF-8'))
 
     def do_GET(self):
-        print(self.path)
         path = self.path.split('/')
         if path[1] == '':
             #reset game
-            config.game.reset()
+            game.reset()
             self._serve_headers()
             with open('index.html', 'rb') as f:
                 index = f.read()
             self.wfile.write(index)
-        elif path[1] == 'next':
-            self.serve_json(config.game.move())
-        elif path[1] == 'state':
-            self.serve_json(config.game.get_state())
         elif path[1] == 'js' and path[2] == 'game.js':
             self._serve_headers(content = 'application/javascript')
             with open('js/game.js', 'rb') as f:
-                game = f.read()
-            self.wfile.write(game)
+                js = f.read()
+            self.wfile.write(js)
+        elif path[1] == 'js' and path[2].endswith('.png'):
+            self._serve_headers(content = 'image/png')
+            with open('js/' + path[2], 'rb') as f:
+                png = f.read()
+            self.wfile.write(png)
+        elif path[1] == 'solve':
+            self.serve_json(game.solve());
+
+    def log_message(self, format, *args):
+        return 
 
 if __name__ == '__main__':
     #init server

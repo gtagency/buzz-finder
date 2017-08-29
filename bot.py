@@ -1,79 +1,71 @@
-from random import choice
-PLAYER1 = 1
-PLAYER2 = 2
-DRAW = 3
+from random import choice, randint
+from collections import deque
+
 
 class Game:
-    def __init__(self, first, second):
-        self.state = [[0 for _ in range(3)] for _ in range(3)]
-        self.player1 = first
-        self.player2 = second
-        self.current = PLAYER1
-        self.done = False
-
-    def get_state(self):
-        return self.state
+    def __init__(self):
+        self.start = (randint(0, 14), randint(0, 14))
+        #should technically check that end != start...
+        self.end = (randint(0, 14), randint(0, 14))
+        #generate map!
+        world = [[0 for _ in range(15)] for _ in range(15)]
+        obstacles = []
+        for i in range(75):
+            r = randint(0, 14)
+            c = randint(0, 14)
+            if ((r, c) != self.start and (r, c) != self.end):
+                world[r][c] = 1
+                obstacles.append((r, c))
+        self.world = world
+        self.obstacles = obstacles
     
-    def check_win(self):
+    def _neighbors(self, r, c):
+        n = [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]
+        valid = [(a, b) for a, b in n if 0 <= a < 15 and 0 <= b < 15]
+        return [(a, b) for a, b in valid if (a, b) not in self.obstacles] 
 
-        for row in self.state:
-            if row[0] == row[1] == row[2]:
-                return row[0]
+    def bfs(self):
+        path = []
+        queue = deque()
+        seen = set()
+        seen.add(self.start)
+        queue.append(self.start)
+        parents = {}
+        while len(queue) != 0:
+            current = queue.popleft()
+            if current == self.end:
+                return parents
+            for n in self._neighbors(current[0], current[1]):
+                if n not in seen:
+                    seen.add(n)
+                    queue.append(n)
+                    parents[n] = current
+        return {} 
 
-        transposed = list(zip(*self.state))
-        for col in transposed:
-            if col[0] == col[1] == col[2]:
-                return col[0]
-        
-        if ((self.state[0][0] == self.state[1][1] == self.state[2][2]) or 
-                (self.state[0][2] == self.state[1][1] == self.state[2][0])):
-            return self.state[1][1]
+    def _walk_backwards(self, parents):
+        if len(parents) == 0:
+            return []
+        path = [self.end] 
+        current = self.end
+        while current in parents:
+            path.append(parents[current])
+            current = parents[current]
+        return path[::-1]
 
-        if all([all([x != 0 for x in row]) for row in self.state]):
-            return DRAW
-        
-    def move(self):
-        if self.done:
-            return self.state
+    def solve(self):
+        #get the path here
+        # path = [[0, 0], [0, 1], [0, 2], [0, 3],
+                # [1, 3], [2, 3], [3, 3],
+                # [3, 2], [3, 1], [3, 0],
+                # [2, 0], [1, 0], [0, 0]]
+        path = self._walk_backwards(self.bfs())
 
-        if self.current == PLAYER1:
-            self.current = PLAYER2
-            self.state = self.player1.next(self.state)
-        else:
-            self.current = PLAYER1
-            self.state = self.player2.next(self.state)
-        
-        win = self.check_win()
-        if win:
-            self.done = True
-            if win == PLAYER1:
-                print("Player 1 wins")
-            elif win == PLAYER2:
-                print("Player 2 wins")
-            elif win == DRAW:
-                print("Draw")
-
-        return self.state
-
+        # path = [[0, 0], [0, 1], [0, 2], [0, 3],
+                # [1, 3], [2, 3], [3, 3],
+                # [3, 2], [3, 1], [3, 0],
+                # [2, 0], [1, 0], [0, 0]]
+        return {'obstacles' : self.obstacles, 'path' : path,
+                'start' : self.start, 'end' : self.end}
+    
     def reset(self):
-        self.state = [[0 for _ in range(3)] for _ in range(3)]
-        self.current = PLAYER1
-        self.done = False
-
-
-class Bot:
-    def __init__(self, team):
-        self.team = team
-
-    def next(self, game_state):
-        moves = []
-        for r, row in enumerate(game_state):
-            for c, i in enumerate(row):
-                if i == 0:
-                    moves.append((r, c))
-
-        r, c = choice(moves) 
-        game_state[r][c] = self.team
-        return game_state
-
-
+        self.__init__()
