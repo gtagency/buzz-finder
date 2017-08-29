@@ -1,8 +1,3 @@
-//vars to request from server
-//var path = [[0, 0], [0, 1], [0, 2], [0, 3],
-    //[1, 3], [2, 3], [3, 3],
-    //[3, 2], [3, 1], [3, 0],
-    //[2, 0], [1, 0], [0, 0]]
 var background_color = '#DDDDDD';
 var WIDTH = 40;
 var WIDTH2 = WIDTH / 2;
@@ -25,29 +20,34 @@ var current = solved_game['start'];
 var obstacles = solved_game['obstacles'];
 var goal = solved_game['end'];
 
+function line_grid(x1, y1, x2, y2) {
+    line(WIDTH2 + x1 * WIDTH, WIDTH2 + y1 * WIDTH,
+            WIDTH2 + x2 * WIDTH, WIDTH2 + y2 * WIDTH);
+}
+
+function image_grid(img, x, y) {
+    image(img, x * WIDTH, y * WIDTH, WIDTH, WIDTH);
+}
 
 function draw_state(step) {
     //reset frame
     background(background_color);
-    image(buzz, goal[1] * WIDTH, goal[0] * WIDTH, WIDTH, WIDTH);
-    
+    image_grid(buzz, goal[1], goal[0]);
+
     //draw path to current point
     for (var i = 1; i < step; i++) {
-        line(WIDTH2 + path[i - 1][1] * WIDTH, WIDTH2 + path[i - 1][0] * WIDTH,
-                WIDTH2 + path[i + 0][1] * WIDTH, WIDTH2 + path[i + 0][0] * WIDTH);
+        stroke(66, 134, 244);
+        line_grid(path[i - 1][1], path[i - 1][0], path[i][1], path[i][0]);
     }
+    line_grid(path[step - 1][1], path[step - 1][0], current[1], current[0]);
 
-    line(WIDTH2 + path[step - 1][1] * WIDTH, WIDTH2 + path[step - 1][0] * WIDTH, 
-            WIDTH2 + current[1] * WIDTH, WIDTH2 + current[0] * WIDTH);
-    
-    //draw world
+    //draw world obstacles
     for (var i = 0; i < obstacles.length; i++) {
-        //image(bus, WIDTH2 + obstacles[i][1] * WIDTH,
-                //WIDTH2 + obstacles[i][0] * WIDTH, WIDTH, WIDTH);
+        stroke(0);
         rect(obstacles[i][1] * WIDTH, obstacles[i][0] * WIDTH, WIDTH, WIDTH);
     }
 
-    //move
+    //move bzm
     var dr = 0
     if (current[0] > path[step][0]) {
         dr = -1;
@@ -65,7 +65,8 @@ function draw_state(step) {
     current[0] = current[0] + dr / tick_rate;
     current[1] = current[1] + dc / tick_rate;
 
-    image(bzm, WIDTH * current[1], WIDTH * current[0], WIDTH, WIDTH);
+    //draw!
+    image_grid(bzm, current[1], current[0]);
 }
 
 function setup() {

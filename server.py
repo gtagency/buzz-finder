@@ -38,7 +38,7 @@ class Handler(BaseHTTPRequestHandler):
             self.serve_json(game.solve());
 
     def log_message(self, format, *args):
-        return 
+        return
 
 if __name__ == '__main__':
     #init server
