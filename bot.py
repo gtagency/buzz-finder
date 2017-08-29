@@ -26,10 +26,25 @@ class Game:
         return [point for point in valid if point not in self.obstacles]
 
     def bfs(self):
-        #
-        #Code here
-        #
-        return {}, 0
+        path = []
+        queue = deque()
+        seen = set()
+        seen.add(self.start)
+        queue.append(self.start)
+        parents = {}
+        expanded = 0
+
+        while len(queue) != 0:
+            current = queue.popleft()
+            if current == self.end:
+                return parents, expanded
+            for n in self._neighbors(current[0], current[1]):
+                expanded += 1
+                if n not in seen:
+                    seen.add(n)
+                    queue.append(n)
+                    parents[n] = current
+        return {}, expanded
 
     def _walk_backwards(self, parents):
         if len(parents) == 0:
@@ -43,9 +58,8 @@ class Game:
 
     def solve(self):
         parents, expanded = self.bfs()
-        # path = self._walk_backwards(parents)
+        path = self._walk_backwards(parents)
         #uncomment me when you've written the search, and delete the line below
-        path = [self.start, self._neighbors(self.start[0], self.start[1])[0]]
 
         print("Path length: {} Expanded Nodes: {}".format(len(path), expanded))
         return {'obstacles' : self.obstacles, 'path' : path, 'world' : self.world,
