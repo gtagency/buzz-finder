@@ -75,7 +75,35 @@ class Game:
         return abs(r2 - r1) + abs(c2 - c1)
 
     def search(self):
-        pass
+        queue = PriorityQueue()
+        #this stores the best cost so far
+        best_cost = {self.start : 0} 
+        seen = set()
+        seen.add(self.start)
+        parents = {}
+        processed = 0
+        queue.push(0, self.start)
+
+
+        while not queue.isEmpty():
+            cost, current = queue.pop()
+
+            if current == self.end:
+                return parents, processed
+            
+            self.frontier_points.append(current)
+            processed += 1
+
+            for n in self._neighbors(current[0], current[1]):
+                found_cost = best_cost[current] + 1
+                if n not in seen or found_cost < best_cost[n]:
+                    best_cost[n] = found_cost
+                    estimated_cost = found_cost + self.manhattan_dist(*n, *self.end) 
+                    seen.add(n)
+                    parents[n] = current
+                    queue.push(estimated_cost, n)
+
+        return {}, processed
 
     def _walk_backwards(self, parents):
         if len(parents) == 0:
@@ -89,8 +117,8 @@ class Game:
         return list(reversed(path))
 
     def solve(self):
-        # parents, expanded = self.search()
-        parents, expanded = self.bfs()
+        parents, expanded = self.search()
+        # parents, expanded = self.bfs()
         path = self._walk_backwards(parents)
 
         print("Path length: {} Processed Nodes: {}".format(len(path), expanded))
