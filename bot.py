@@ -1,20 +1,40 @@
 from random import choice, randint
 from collections import deque
 from random import seed
-DIM = 15
+import heapq
+DIM = 20
+
+#we want to make things deterministic, for better demonstration
+seed(2)
+
+class PriorityQueue:
+    def __init__(self):
+        self.backing_heap = []
+        self.count = 0
+        self.items = 0
+
+    def push(self, priority, element):
+        heapq.heappush(self.backing_heap, (priority, self.count, element))
+        self.count += 1
+        self.items += 1
+
+    def pop(self):
+        priority, _, element = heapq.heappop(self.backing_heap)
+        self.items -= 1
+        return priority, element
+
+    def isEmpty(self):
+        return self.items == 0
 
 class Game:
     def __init__(self):
-        seed(15)
-        # self.start = (randint(0, DIM - 1), randint(0, DIM - 1))
+        self.start = (randint(0, DIM - 1), randint(0, DIM - 1))
         #should technically check that end != start...
-        # self.end = (randint(0, DIM - 1), randint(0, DIM - 1))
-        self.start = (0, 0)
-        self.end = (14, 14)
+        self.end = (randint(0, DIM - 1), randint(0, DIM - 1))
         #generate map!
         world = [[0 for _ in range(DIM)] for _ in range(DIM)]
         obstacles = []
-        for i in range(80):
+        for i in range(150):
             r = randint(0, DIM - 1)
             c = randint(0, DIM - 1)
             if ((r, c) != self.start and (r, c) != self.end):
@@ -22,7 +42,6 @@ class Game:
                 obstacles.append((r, c))
         self.world = world
         self.obstacles = obstacles
-        # self.frontier = [[0 for _ in range(DIM)] for _ in range(DIM)]
         self.frontier_points = []
 
     def _neighbors(self, r, c):
@@ -31,46 +50,50 @@ class Game:
         return [point for point in valid if point not in self.obstacles]
 
     def bfs(self):
-        path = []
         queue = deque()
         seen = set()
         seen.add(self.start)
         queue.append(self.start)
         parents = {}
-        expanded = 0
+        processed = 0
 
         while len(queue) != 0:
             current = queue.popleft()
             #show the order we consider things in
             self.frontier_points.append(current)
+            processed += 1
             if current == self.end:
-                return parents, expanded
+                return parents, processed
             for n in self._neighbors(current[0], current[1]):
-                expanded += 1
                 if n not in seen:
                     seen.add(n)
                     queue.append(n)
-                    print(n)
                     parents[n] = current
-        print(self.obstacles)
-        return {}, expanded
+        return {}, processed
+
+    def manhattan_dist(self, r1, c1, r2, c2):
+        return abs(r2 - r1) + abs(c2 - c1)
+
+    def search(self):
+        pass
 
     def _walk_backwards(self, parents):
         if len(parents) == 0:
             return []
-        path = [self.end]
+        path = []
         current = self.end
         while current in parents:
-            path.append(parents[current])
+            path.append(current)
             current = parents[current]
-        return path[::-1]
+        path.append(current)
+        return list(reversed(path))
 
     def solve(self):
+        # parents, expanded = self.search()
         parents, expanded = self.bfs()
         path = self._walk_backwards(parents)
-        #uncomment me when you've written the search, and delete the line below
 
-        print("Path length: {} Expanded Nodes: {}".format(len(path), expanded))
+        print("Path length: {} Processed Nodes: {}".format(len(path), expanded))
         return {'obstacles' : self.obstacles, 'path' : path,
                 'world' : self.world, 'frontier_points' : self.frontier_points,
                 'start' : self.start, 'end' : self.end}
