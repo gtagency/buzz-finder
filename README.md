@@ -5,7 +5,7 @@ This is the first of the Agency beginner projects, targeted at people who are ju
 
 ## Premise
 
-You will be writing code to help (buzzmobile)[https://github.com/gtagency/buzzmobile], our autonomous car, navigate Tech's campus to find Buzz.
+You will be writing code to help [buzzmobile](https://github.com/gtagency/buzzmobile), our autonomous car, navigate Tech's campus to find Buzz.
 This takes place in our state-of-the-art simulator. Later on, we will add to the game and talk about better algorithms
 for solving these problems. For now, we'll just use a simple breadth first search to find the shortest path to Buzz. 
 
