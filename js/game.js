@@ -1,6 +1,6 @@
 var background_color = '#DDDDDD';
 var WIDTH = 40;
-var DIM = 15;
+var DIM = 20;
 var WIDTH2 = WIDTH / 2;
 var tick_rate = 5;
 var step = 0;
@@ -33,7 +33,6 @@ function line_grid(x1, y1, x2, y2) {
 function image_grid(img, x, y) {
     image(img, x * WIDTH, y * WIDTH, WIDTH, WIDTH);
 }
-
 
 function draw_world(step) {
     //reset frame
@@ -112,11 +111,12 @@ function setup() {
 
 function draw() {
     if (ANIMATION_STATE == 0) {
-        //draw world state from step 0
-        //animate frontier rollout
-        draw_frontier(step);
-        step += 1;
-
+        if (frameCount % 2 == 0) {
+            //draw world state from step 0
+            //animate frontier rollout
+            draw_frontier(step);
+            step += 1;
+        }
         if (step == frontier_points.length) {
             step = 1;
             ANIMATION_STATE = 1;
