@@ -1,17 +1,20 @@
 from random import choice, randint
 from collections import deque
-
+from random import seed
 DIM = 15
 
 class Game:
     def __init__(self):
-        self.start = (randint(0, DIM - 1), randint(0, DIM - 1))
+        seed(15)
+        # self.start = (randint(0, DIM - 1), randint(0, DIM - 1))
         #should technically check that end != start...
-        self.end = (randint(0, DIM - 1), randint(0, DIM - 1))
+        # self.end = (randint(0, DIM - 1), randint(0, DIM - 1))
+        self.start = (0, 0)
+        self.end = (14, 14)
         #generate map!
         world = [[0 for _ in range(DIM)] for _ in range(DIM)]
         obstacles = []
-        for i in range(65):
+        for i in range(80):
             r = randint(0, DIM - 1)
             c = randint(0, DIM - 1)
             if ((r, c) != self.start and (r, c) != self.end):
@@ -19,6 +22,8 @@ class Game:
                 obstacles.append((r, c))
         self.world = world
         self.obstacles = obstacles
+        # self.frontier = [[0 for _ in range(DIM)] for _ in range(DIM)]
+        self.frontier_points = []
 
     def _neighbors(self, r, c):
         n = [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]
@@ -36,6 +41,8 @@ class Game:
 
         while len(queue) != 0:
             current = queue.popleft()
+            #show the order we consider things in
+            self.frontier_points.append(current)
             if current == self.end:
                 return parents, expanded
             for n in self._neighbors(current[0], current[1]):
@@ -43,7 +50,9 @@ class Game:
                 if n not in seen:
                     seen.add(n)
                     queue.append(n)
+                    print(n)
                     parents[n] = current
+        print(self.obstacles)
         return {}, expanded
 
     def _walk_backwards(self, parents):
@@ -62,7 +71,8 @@ class Game:
         #uncomment me when you've written the search, and delete the line below
 
         print("Path length: {} Expanded Nodes: {}".format(len(path), expanded))
-        return {'obstacles' : self.obstacles, 'path' : path, 'world' : self.world,
+        return {'obstacles' : self.obstacles, 'path' : path,
+                'world' : self.world, 'frontier_points' : self.frontier_points,
                 'start' : self.start, 'end' : self.end}
 
     def reset(self):
